@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MAV — One-Page Abstract</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F1E6;
+    --ink:#2A1B12;
+    --brown-1:#5C3A21;
+    --brown-2:#8B5E34;
+    --accent:#9C4A24;
+    --line:#C9B79C;
+    --chip-bg:#EFE1CC;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#1E140D;
+      --ink:#F1E6D8;
+      --brown-1:#D8B896;
+      --brown-2:#C99A6D;
+      --accent:#E08A54;
+      --line:#4A3624;
+      --chip-bg:#332212;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1E140D;
+    --ink:#F1E6D8;
+    --brown-1:#D8B896;
+    --brown-2:#C99A6D;
+    --accent:#E08A54;
+    --line:#4A3624;
+    --chip-bg:#332212;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{
+    max-width:840px;
+    margin:0 auto;
+    padding:56px 48px 44px;
+  }
+  .masthead{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:18px;
+  }
+  .wordmark{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:44px;
+    letter-spacing:0.01em;
+    line-height:1;
+    color:var(--ink);
+  }
+  .tagline{
+    font-size:14.5px;
+    max-width:340px;
+    color:var(--brown-1);
+    line-height:1.45;
+    text-align:right;
+  }
+  .pitch{
+    margin-top:26px;
+  }
+  .pitch h1{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:30px;
+    line-height:1.25;
+    margin:0 0 10px;
+    color:var(--accent);
+    max-width:640px;
+  }
+  .pitch p{
+    font-size:15.5px;
+    line-height:1.62;
+    max-width:680px;
+    margin:0;
+    color:var(--ink);
+  }
+  .rule{
+    border:none;
+    border-top:1px solid var(--line);
+    margin:30px 0;
+  }
+  .twocol{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:36px;
+  }
+  .block h2{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:19px;
+    margin:0 0 4px;
+    color:var(--ink);
+  }
+  .block .sub{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-size:14.5px;
+    color:var(--brown-2);
+    margin:0 0 10px;
+  }
+  .block p{
+    font-size:14px;
+    line-height:1.58;
+    margin:0 0 10px;
+    color:var(--ink);
+  }
+  .block ul{
+    margin:0;
+    padding-left:18px;
+    font-size:13.5px;
+    line-height:1.6;
+    color:var(--brown-1);
+  }
+  .block ul li{margin-bottom:5px;}
+  .section-title{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:19px;
+    margin:0 0 4px;
+  }
+  .section-sub{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-size:14.5px;
+    color:var(--brown-2);
+    margin:0 0 12px;
+  }
+  .integration p{
+    font-size:14px;
+    line-height:1.6;
+    max-width:680px;
+    margin:0 0 22px;
+  }
+  .pipeline{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:0;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    margin-bottom:24px;
+  }
+  .pipeline .node{
+    background:var(--chip-bg);
+    border:1px solid var(--line);
+    color:var(--ink);
+    padding:7px 12px;
+    border-radius:3px;
+    white-space:nowrap;
+  }
+  .pipeline .arrow{
+    color:var(--brown-2);
+    padding:0 8px;
+    font-size:14px;
+  }
+  .features{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+    margin-bottom:26px;
+  }
+  .feature{
+    border-left:2px solid var(--accent);
+    padding-left:12px;
+  }
+  .feature h3{
+    font-size:13.5px;
+    font-weight:600;
+    margin:0 0 4px;
+    color:var(--ink);
+  }
+  .feature p{
+    font-size:12.5px;
+    line-height:1.5;
+    margin:0;
+    color:var(--brown-1);
+  }
+  .stack{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .stack span{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    background:var(--chip-bg);
+    border:1px solid var(--line);
+    padding:4px 9px;
+    border-radius:3px;
+    color:var(--brown-1);
+  }
+  .footer{
+    margin-top:30px;
+    padding-top:16px;
+    border-top:2px solid var(--ink);
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .footer .credo{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-size:15px;
+    color:var(--accent);
+  }
+  .footer .meta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--brown-2);
+  }
+  @media (max-width:640px){
+    .page{padding:32px 20px;}
+    .masthead{flex-direction:column;align-items:flex-start;}
+    .tagline{text-align:left;}
+    .twocol{grid-template-columns:1fr;}
+    .features{grid-template-columns:1fr;}
+    .wordmark{font-size:36px;}
+  }
+  @media print{
+    body{background:#fff;}
+    .page{max-width:100%;padding:24px;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="masthead">
+    <div class="wordmark">MAV</div>
+    <div class="tagline">An AI assistant built from a plant's own knowledge — running on its own infrastructure.</div>
+  </div>
+
+  <div class="pitch">
+    <h1>Your data, your model, your assistant</h1>
+    <p>MAV turns a company's existing industrial knowledge — manuals, machine documentation, maintenance records, reports, and the expertise living in people's heads — into a private AI assistant employees can simply ask. Unlike a generic chatbot layered on top of company files, MAV is trained on that company's own operational reality and runs inside its own infrastructure, so proprietary data never has to leave the building. That combination — company-specific knowledge plus on-premises AI — is what makes MAV different from both generic AI tools and traditional knowledge-management software.</p>
+  </div>
+
+  <hr class="rule">
+
+  <div class="twocol">
+    <div class="block">
+      <h2>The problem</h2>
+      <p class="sub">Knowledge is trapped, scattered, and hard to reach</p>
+      <p>Industrial knowledge lives in SOPs, machine docs, maintenance logs, operational reports, and experienced employees — spread across different systems no single tool searches.</p>
+      <ul>
+        <li>Finding the right procedure takes time employees don't have</li>
+        <li>Experienced staff become single points of knowledge</li>
+        <li>New hires need long, costly onboarding</li>
+        <li>Generic AI doesn't understand the company's own processes</li>
+        <li>Sending sensitive plant data to external AI is a non-starter for most operators</li>
+      </ul>
+    </div>
+    <div class="block">
+      <h2>The solution</h2>
+      <p class="sub">Data in, an assistant out</p>
+      <p>MAV connects to a company's existing documents and systems, indexes them, and serves them back through a natural-language assistant employees already know how to use.</p>
+      <ul>
+        <li>One assistant that speaks the plant's own vocabulary</li>
+        <li>Answers cite the company's own procedures, not generic advice</li>
+        <li>Cuts search time and reduces reliance on any one expert</li>
+        <li>Deployed inside the company's infrastructure, not a public cloud</li>
+        <li>Remembers conversation and session context across a shift</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <div class="integration">
+    <div class="section-title">How Qwen AI is integrated</div>
+    <div class="section-sub">A self-hosted reasoning layer, not a cloud API call</div>
+    <p>MAV's reasoning is powered by Qwen AI, served locally through Ollama instead of an external API. A FastAPI backend retrieves the relevant company documents and conversation memory for a query, optionally enriches it with live web results via Tavily, assembles the company-specific context, and passes it to Qwen AI running inside the customer's own network — so the model doing the reasoning never has to send data outside the plant to work.</p>
+
+    <div class="pipeline">
+      <span class="node">Company Data</span><span class="arrow">→</span>
+      <span class="node">FastAPI</span><span class="arrow">→</span>
+      <span class="node">MAV Intelligence Layer</span><span class="arrow">→</span>
+      <span class="node">Qwen AI (via Ollama)</span><span class="arrow">→</span>
+      <span class="node">Response</span>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <h3>Runs on-premises</h3>
+        <p>Qwen's open weights let the whole model be self-hosted, so inference happens on hardware the company controls.</p>
+      </div>
+      <div class="feature">
+        <h3>Sized to fit</h3>
+        <p>Strong reasoning and multilingual performance at sizes that can be quantized to a customer's own GPU budget.</p>
+      </div>
+      <div class="feature">
+        <h3>No data egress</h3>
+        <p>No per-token calls to an external provider, so the privacy concern named above is solved by design, not policy.</p>
+      </div>
+    </div>
+
+    <div class="stack">
+      <span>HTML/CSS/JS</span><span>Tailwind</span><span>FastAPI</span><span>Ollama</span><span>Qwen AI</span><span>Tavily</span><span>JSON Memory</span><span>Web Speech API</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="credo">Your data → MAV → Answers &amp; Assistance</div>
+    <div class="meta">MAV — On-Premises AI Assistant</div>
+  </div>
+
+</div>
+</body>
+</html>
