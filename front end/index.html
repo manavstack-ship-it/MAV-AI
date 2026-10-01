@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAV AI UI</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              500: '#10a37f',
+              600: '#0e8a6c',
+              700: '#0b6e56',
+            },
+            chat: {
+              sidebar: '#171717',
+              sidebarLight: '#f9f9f9',
+              bgDark: '#212121',
+              bgLight: '#ffffff',
+              bubbleDark: '#2f2f2f',
+              bubbleLight: '#f4f4f4',
+              inputDark: '#2f2f2f',
+              inputLight: '#f4f4f4',
+              borderDark: '#383838',
+              borderLight: '#e5e5e5'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Marked.js for Markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Highlight.js for Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-chat-bgDark text-zinc-100 dark:bg-chat-bgDark dark:text-zinc-100 flex h-screen overflow-hidden font-sans antialiased selection:bg-brand-500 selection:text-white transition-colors duration-200">
+
+  <!-- Mobile Sidebar Overlay -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden transition-opacity"></div>
+
+  <!-- Left Sidebar -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-chat-sidebar border-r border-chat-borderDark flex flex-col transition-transform duration-300 -translate-x-full md:relative md:translate-x-0">
+    
+    <!-- Sidebar Header: New Chat & Hide Sidebar -->
+    <div class="p-3 flex items-center justify-between gap-2 border-b border-chat-borderDark/40">
+      <button id="new-chat-btn" class="flex-1 flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium hover:bg-zinc-800/80 transition-colors border border-chat-borderDark text-zinc-200 hover:text-white">
+        <i data-lucide="plus" class="w-4 h-4 text-zinc-400"></i>
+        <span>New chat</span>
+      </button>
+      <button id="toggle-sidebar-btn" title="Close sidebar" class="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+        <i data-lucide="panel-left-close" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Search Chats -->
+    <div class="px-3 pt-3">
+      <div class="relative">
+        <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+        <input id="search-chats-input" type="text" placeholder="Search chats..." class="w-full bg-zinc-800/60 border border-chat-borderDark/60 rounded-md pl-8 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors">
+      </div>
+    </div>
+
+    <!-- Chat History List -->
+    <div class="flex-1 overflow-y-auto px-2 py-3 space-y-4 custom-scrollbar" id="chat-history-container"></div>
+
+    <!-- Sidebar Footer / User Controls -->
+    <div class="p-3 border-t border-chat-borderDark/60 space-y-1 text-xs text-zinc-400">
+      <div class="flex items-center justify-between p-2 rounded-lg hover:bg-zinc-800/60 transition-colors cursor-pointer" id="theme-toggle-btn">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="moon" id="theme-icon" class="w-4 h-4 text-zinc-300"></i>
+          <span id="theme-label" class="text-zinc-200">Dark Mode</span>
+        </div>
+        <span class="text-[10px] uppercase font-semibold text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded">Toggle</span>
+      </div>
+
+      <div class="flex items-center justify-between p-2 rounded-lg hover:bg-zinc-800/60 transition-colors cursor-pointer" id="open-settings-btn">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="settings" class="w-4 h-4 text-zinc-300"></i>
+          <span class="text-zinc-200">Settings</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 p-2 rounded-lg bg-zinc-800/40 border border-zinc-800 mt-2">
+        <div class="w-7 h-7 rounded-full bg-brand-600 flex items-center justify-center font-bold text-white text-xs">
+          U
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-zinc-200 truncate">MAV AI User</p>
+          <p class="text-[10px] text-zinc-400 truncate">Free Plan</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Chat Workspace -->
+  <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-chat-bgDark">
+    
+    <!-- Top Bar -->
+    <header class="h-14 border-b border-chat-borderDark/40 flex items-center justify-between px-4 z-10 bg-chat-bgDark/90 backdrop-blur-sm">
+      <div class="flex items-center gap-3">
+        <!-- Mobile Sidebar Open Button -->
+        <button id="mobile-sidebar-open" class="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 md:hidden transition-colors">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+
+        <!-- Sidebar Reopen Button for Desktop -->
+        <button id="desktop-sidebar-open" class="hidden p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors" title="Open sidebar">
+          <i data-lucide="panel-left-open" class="w-5 h-5"></i>
+        </button>
+
+        <!-- Model Selector Dropdown -->
+        <div class="relative" id="model-selector-container">
+          <button id="model-dropdown-trigger" class="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-zinc-800/80 transition-colors group border border-transparent hover:border-zinc-700/60">
+            <span id="current-model-display" class="font-semibold text-base text-zinc-100 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+              MAV AI
+            </span>
+            <span id="current-model-tag" class="text-xs text-zinc-400 font-normal bg-zinc-800/80 px-2 py-0.5 rounded-full border border-zinc-700/50">MAV</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-400 group-hover:text-zinc-200 transition-transform"></i>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div id="model-dropdown-menu" class="absolute top-full left-0 mt-2 w-72 bg-zinc-900 border border-zinc-700/80 rounded-2xl shadow-2xl p-2 z-50 hidden backdrop-blur-xl">
+            <div class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-3 py-1.5">Model Family</div>
+            <div class="space-y-1" id="model-list-options"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Header Actions -->
+      <div class="flex items-center gap-2">
+        <button id="export-chat-btn" title="Export conversation" class="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+          <i data-lucide="download" class="w-4 h-4"></i>
+        </button>
+        <button id="clear-chat-btn" title="Clear current messages" class="p-2 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-colors">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Chat Messages Viewport -->
+    <div id="messages-container" class="flex-1 overflow-y-auto px-4 md:px-0 py-6 custom-scrollbar">
+      <div class="max-w-3xl mx-auto space-y-6" id="messages-stream">
+        
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="py-12 md:py-20 text-center flex flex-col items-center justify-center space-y-6">
+          <div class="w-16 h-16 rounded-2xl bg-zinc-800/90 border border-zinc-700 flex items-center justify-center shadow-lg shadow-black/20 text-brand-500">
+            <i data-lucide="sparkles" class="w-8 h-8"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white mb-2">What can I help with today?</h1>
+            <p class="text-sm text-zinc-400 max-w-md mx-auto">Ask a question, upload photos for visual analysis, or use voice input to speak directly.</p>
+          </div>
+
+          <!-- Suggestion Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl text-left pt-4">
+            <button class="suggestion-card p-3.5 rounded-xl border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/80 transition-all text-xs text-zinc-300 hover:text-white flex flex-col gap-1 group">
+              <span class="font-medium text-zinc-200 group-hover:text-brand-500 transition-colors flex items-center gap-1.5">
+                <i data-lucide="code-2" class="w-3.5 h-3.5"></i> Code a Python script
+              </span>
+              <span class="text-zinc-500 text-[11px]">Generate a web scraper with error handling and retries</span>
+            </button>
+            <button class="suggestion-card p-3.5 rounded-xl border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/80 transition-all text-xs text-zinc-300 hover:text-white flex flex-col gap-1 group">
+              <span class="font-medium text-zinc-200 group-hover:text-brand-500 transition-colors flex items-center gap-1.5">
+                <i data-lucide="image" class="w-3.5 h-3.5"></i> Analyze photos & graphics
+              </span>
+              <span class="text-zinc-500 text-[11px]">Attach an image and ask questions about it</span>
+            </button>
+            <button class="suggestion-card p-3.5 rounded-xl border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/80 transition-all text-xs text-zinc-300 hover:text-white flex flex-col gap-1 group">
+              <span class="font-medium text-zinc-200 group-hover:text-brand-500 transition-colors flex items-center gap-1.5">
+                <i data-lucide="mic" class="w-3.5 h-3.5"></i> Hands-free Voice Input
+              </span>
+              <span class="text-zinc-500 text-[11px]">Speak your prompt and let speech-to-text transcribe</span>
+            </button>
+            <button class="suggestion-card p-3.5 rounded-xl border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/80 transition-all text-xs text-zinc-300 hover:text-white flex flex-col gap-1 group">
+              <span class="font-medium text-zinc-200 group-hover:text-brand-500 transition-colors flex items-center gap-1.5">
+                <i data-lucide="compass" class="w-3.5 h-3.5"></i> Brainstorm creative ideas
+              </span>
+              <span class="text-zinc-500 text-[11px]">Plan a high-impact startup launch strategy</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Bottom Input Dock -->
+    <div class="px-4 pb-4 md:pb-6 pt-2 bg-gradient-to-t from-chat-bgDark via-chat-bgDark to-transparent">
+      <div class="max-w-3xl mx-auto relative">
+
+        <!-- Voice Recording Active Banner -->
+        <div id="voice-recording-banner" class="hidden mb-3 p-3 rounded-2xl bg-red-950/40 border border-red-500/40 backdrop-blur-md flex items-center justify-between animate-fade-in shadow-lg shadow-red-950/20">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1">
+              <span class="audio-bar"></span>
+              <span class="audio-bar"></span>
+              <span class="audio-bar"></span>
+              <span class="audio-bar"></span>
+              <span class="audio-bar"></span>
+            </div>
+            <span class="text-xs font-medium text-red-200">Listening... Speak into your microphone</span>
+          </div>
+          <button id="cancel-voice-btn" class="text-xs px-2.5 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 transition-colors border border-red-500/30">
+            Stop Listening
+          </button>
+        </div>
+
+        <!-- Attached Photos Preview Strip -->
+        <div id="image-previews-strip" class="hidden flex flex-wrap gap-2.5 mb-2.5 p-2 rounded-xl bg-zinc-800/60 border border-zinc-700/60"></div>
+
+        <!-- Main Input Container Box -->
+        <div id="input-container-box" class="relative rounded-3xl bg-chat-inputDark border border-chat-borderDark focus-within:border-zinc-500 shadow-xl transition-all duration-200">
+          
+          <!-- Drop Area Indicator -->
+          <div id="drag-drop-overlay" class="absolute inset-0 rounded-3xl bg-brand-500/10 border-2 border-dashed border-brand-500 flex items-center justify-center z-20 pointer-events-none hidden">
+            <p class="text-xs font-semibold text-brand-400 flex items-center gap-1.5">
+              <i data-lucide="image-plus" class="w-4 h-4"></i> Drop photos here to attach
+            </p>
+          </div>
+
+          <div class="flex flex-col p-2.5">
+            <!-- Textarea -->
+            <textarea
+              id="prompt-textarea"
+              rows="1"
+              placeholder="Message MAV AI or attach photos..."
+              class="w-full bg-transparent text-sm text-zinc-100 placeholder-zinc-400 resize-none max-h-48 px-3 py-1 focus:outline-none custom-scrollbar"
+            ></textarea>
+
+            <!-- Bottom Action Controls inside Input -->
+            <div class="flex items-center justify-between pt-2 px-1">
+              
+              <!-- Left Tool Buttons: Attach Photo -->
+              <div class="flex items-center gap-1">
+                <input type="file" id="photo-file-input" accept="image/*" multiple class="hidden">
+                
+                <button
+                  type="button"
+                  id="attach-photo-btn"
+                  title="Attach photos or images"
+                  class="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors flex items-center gap-1 text-xs"
+                >
+                  <i data-lucide="image-plus" class="w-4 h-4"></i>
+                  <span class="hidden sm:inline text-[11px] text-zinc-400">Photo</span>
+                </button>
+
+                <button
+                  type="button"
+                  id="model-quick-badge"
+                  class="text-[11px] text-zinc-400 bg-zinc-800/60 px-2 py-1 rounded-full border border-zinc-700/40 hover:bg-zinc-800 hover:text-zinc-200 transition-colors flex items-center gap-1"
+                >
+                  <i data-lucide="cpu" class="w-3 h-3 text-brand-500"></i>
+                  <span id="quick-badge-text">MAV</span>
+                </button>
+              </div>
+
+              <!-- Right Tool Buttons: Voice Mic + Send -->
+              <div class="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  id="voice-mic-btn"
+                  title="Voice input (Speech to Text)"
+                  class="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all relative"
+                >
+                  <i data-lucide="mic" class="w-4 h-4" id="mic-icon"></i>
+                  <span id="mic-pulse-ring" class="hidden absolute inset-0 rounded-full bg-red-500/20 animate-ping pointer-events-none"></span>
+                </button>
+
+                <button
+                  type="button"
+                  id="send-message-btn"
+                  title="Send message"
+                  disabled
+                  class="w-8 h-8 rounded-full bg-white text-zinc-950 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-zinc-200 transition-all font-bold"
+                >
+                  <i data-lucide="arrow-up" class="w-4 h-4" id="send-icon"></i>
+                  <i data-lucide="square" class="w-3.5 h-3.5 hidden fill-current" id="stop-icon"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <p class="text-[11px] text-center text-zinc-500 mt-2">
+          MAV AI can make mistakes. Check important info.
+        </p>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Image Lightbox Modal -->
+  <div id="image-lightbox" class="fixed inset-0 z-50 bg-black/90 hidden flex items-center justify-center p-4">
+    <button id="close-lightbox-btn" class="absolute top-4 right-4 p-2 text-zinc-400 hover:text-white rounded-full bg-zinc-800/80">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <img id="lightbox-img" src="" alt="Enlarged preview" class="max-w-full max-h-[85vh] rounded-lg object-contain shadow-2xl">
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-5 animate-scale-up">
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+        <h3 class="text-base font-semibold text-white flex items-center gap-2">
+          <i data-lucide="sliders" class="w-4 h-4 text-brand-500"></i> Settings
+        </h3>
+        <button id="close-settings-btn" class="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div>
+          <label class="block font-medium text-zinc-300 mb-1">OpenAI API Key (Optional)</label>
+          <input type="password" id="api-key-input" placeholder="sk-..." class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-brand-500">
+          <p class="text-[11px] text-zinc-500 mt-1">If empty, realistic AI simulations with full vision & code responses will be used.</p>
+        </div>
+
+        <div>
+          <label class="block font-medium text-zinc-300 mb-1">Simulation Speed</label>
+          <select id="sim-speed-select" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-brand-500">
+            <option value="fast">Fast typing (15ms)</option>
+            <option value="normal" selected>Normal typing (30ms)</option>
+            <option value="instant">Instant (no delay)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-medium text-zinc-300 mb-1">System Instructions</label>
+          <textarea id="system-prompt-input" rows="2" placeholder="You are a helpful, witty, and concise AI assistant..." class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-brand-500 resize-none"></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-3 border-t border-zinc-800">
+        <button id="clear-all-data-btn" class="text-xs text-red-400 hover:text-red-300 font-medium">Clear All Data</button>
+        <button id="save-settings-btn" class="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium text-xs transition-colors">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
