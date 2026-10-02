@@ -8,7 +8,7 @@
 <br>
 
 <img src="<img width="2560" height="1392" alt="MAV AI UI - Google Chrome 01-10-2026 23_34_40" src="https://github.com/user-attachments/assets/fa6ad7d8-959d-4f10-b00d-248548b9149c" />
-" alt="MAV Dashboard" width="900">
+
 
 </p>
 
